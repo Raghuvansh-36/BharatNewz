@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/BharatNewz/static/css/main.67dfba17.css",
+    "main.js": "/BharatNewz/static/js/main.6ccc63ee.js",
+    "index.html": "/BharatNewz/index.html",
+    "main.67dfba17.css.map": "/BharatNewz/static/css/main.67dfba17.css.map",
+    "main.6ccc63ee.js.map": "/BharatNewz/static/js/main.6ccc63ee.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.67dfba17.css",
+    "static/js/main.6ccc63ee.js"
+  ]
+}
