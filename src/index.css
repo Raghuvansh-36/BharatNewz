@@ -1,0 +1,14 @@
+/* index.css */
+#root {
+  display: block;
+  background: white;
+  color: black;
+}
+.card{
+  border: 2px solid black;
+  border-radius: 1.25rem;
+}
+.card-img, .card-img-top {
+    border-top-left-radius: calc(1.25rem - 1px);
+    border-top-right-radius: calc(1.25rem - 1px);
+}
