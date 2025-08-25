@@ -32,7 +32,7 @@ const NewsItem = (props) => {
           <p className="card-text">{description}</p>
           <p className="card-text">
             <small className="text-muted">
-              Published On {new Date(date).toGMTString()}
+              Published On {new Date(date).toISTString()}
             </small>
           </p>
           <a rel="noreferrer"href={newsUrl}target="_blank"className="btn btn-sm btn-primary">
