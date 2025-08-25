@@ -10,6 +10,7 @@ const App = () => {
   const [progress, setProgress] = useState(0);
 
   return (
+    console.log("In Return Outside div")
     <div>
       <Router>
         <NavBar />
@@ -18,7 +19,7 @@ const App = () => {
           color="red"
           progress={progress}
         />
-
+        console.log("Above route")
         <Routes>
           <Route
             path="*"
@@ -26,48 +27,46 @@ const App = () => {
           />
           <Route
             path="/"
-            element={<News setProgress={setProgress}apiKey={apiKey}key="general"pageSize={pageSize}country="in"category="general"/>}
+            element={<News setProgress={setProgress}apiKey={apiKey}key="general"country="in"category="general"/>}
           />
 
           <Route
             path="/business"
-            element={<News setProgress={setProgress}apiKey={apiKey}key="business"pageSize={pageSize}country="in"category="business"/>}
+            element={<News setProgress={setProgress}apiKey={apiKey}key="business"country="in"category="business"/>}
           />
 
           <Route
             path="/entertainment"
-            element={<News setProgress={setProgress}apiKey={apiKey}key="entertainment"pageSize={pageSize}country="in"category="entertainment"/>}
+            element={<News setProgress={setProgress}apiKey={apiKey}key="entertainment"country="in"category="entertainment"/>}
           />
 
           <Route
             path="/general"
             element={
-              <News setProgress={setProgress}apiKey={apiKey}key="general"pageSize={pageSize}country="in"category="general"/>}
+              <News setProgress={setProgress}apiKey={apiKey}key="general"country="in"category="general"/>}
           />
 
           <Route
             path="/health"
             element={
-              <News setProgress={setProgress}apiKey={apiKey}key="health"pageSize={pageSize}country="in"category="health"/>}
+              <News setProgress={setProgress}apiKey={apiKey}key="health"country="in"category="health"/>}
           />
 
           <Route
             path="/science"
             element={
-              <News setProgress={setProgress}apiKey={apiKey}key="science"pageSize={pageSize}country="in"category="science"/>}
+              <News setProgress={setProgress}apiKey={apiKey}key="science"country="in"category="science"/>}
           />
 
           <Route
             path="/sports"
             element={
-              <News setProgress={setProgress}apiKey={apiKey}key="sports"pageSize={pageSize}country="in"category="sports"/>}
+              <News setProgress={setProgress}apiKey={apiKey}key="sports"country="in"category="sports"/>}
           />
 
           <Route
             path="/technology"
-            element={
-              <News setProgress={setProgress}apiKey={apiKey}key="technology"pageSize={pageSize}country="in"category="technology"/>}
-          />
+            element={<News setProgress={setProgress}apiKey={apiKey}key="technology"country="in"category="technology"/>}
         </Routes>
       </Router>
     </div>
