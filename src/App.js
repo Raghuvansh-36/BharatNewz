@@ -11,20 +11,15 @@ const App = () => {
 
   return (
     <div>
-      <Router future={{v7_startTransition: true, v7_relativeSplatPath: true}}>
-        <NavBar />
+      <Router future = {{v7_startTransition: true, v7_relativeSplatPath: true}}>
+        <NavBar/>
         <LoadingBar
           height={3}
           color="red"
           progress={progress}
-        />
-
-        <Routes>
-          <Route
-            path="/"
-            element={<News setProgress={setProgress}apiKey={apiKey}key="general"pageSize={pageSize}country="in"category="general"/>}
           />
 
+        <Routes>
           <Route
             path="/business"
             element={<News setProgress={setProgress}apiKey={apiKey}key="business"pageSize={pageSize}country="in"category="business"/>}
@@ -64,10 +59,15 @@ const App = () => {
             element={
               <News setProgress={setProgress}apiKey={apiKey}key="technology"pageSize={pageSize}country="in"category="technology"/>}
           />
+
+          <Route
+            path="*"
+            element={<News setProgress={setProgress}apiKey={apiKey}key="general"pageSize={pageSize}country="in"category="general"/>}
+          />
         </Routes>
       </Router>
     </div>
-  );
+  )
 };
 
 export default App;

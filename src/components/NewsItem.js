@@ -21,7 +21,7 @@ const NewsItem = (props) => {
 
         {/* News Image */}
         <img
-          src={imageUrl ? imageUrl : "https://fdn.gsmarena.com/imgroot/news/21/08/xiaomi-smart-home-india-annoucnements/-476x249w4/gsmarena_00.jpg"}
+          src={imageUrl ? imageUrl : "../assets/no-img.jpg"}
           className="card-img-top"
           alt="news-image"
         />
@@ -32,7 +32,7 @@ const NewsItem = (props) => {
           <p className="card-text">{description}</p>
           <p className="card-text">
             <small className="text-muted">
-              Published On {new Date(date).toGMTString()}
+              Published On {new Date(date).toLocaleString("en-US", {timeZone: 'Asia/Kolkata', month:"long", day:"numeric", year:"numeric", hour:"2-digit", minute:"2-digit"})}
             </small>
           </p>
           <a rel="noreferrer"href={newsUrl}target="_blank"className="btn btn-sm btn-primary">
