@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/BharatNewz/static/css/main.67dfba17.css",
-    "main.js": "/BharatNewz/static/js/main.14c00049.js",
+    "main.css": "/BharatNewz/static/css/main.a406849a.css",
+    "main.js": "/BharatNewz/static/js/main.593b638d.js",
     "index.html": "/BharatNewz/index.html",
-    "main.67dfba17.css.map": "/BharatNewz/static/css/main.67dfba17.css.map",
-    "main.14c00049.js.map": "/BharatNewz/static/js/main.14c00049.js.map"
+    "main.a406849a.css.map": "/BharatNewz/static/css/main.a406849a.css.map",
+    "main.593b638d.js.map": "/BharatNewz/static/js/main.593b638d.js.map"
   },
   "entrypoints": [
-    "static/css/main.67dfba17.css",
-    "static/js/main.14c00049.js"
+    "static/css/main.a406849a.css",
+    "static/js/main.593b638d.js"
   ]
 }
