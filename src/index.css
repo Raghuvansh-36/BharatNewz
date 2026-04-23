@@ -1,14 +1,341 @@
-/* index.css */
+/* ── Google Font ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ── CSS Variables ── */
+:root {
+  --bg-gradient: linear-gradient(135deg, #0d0d1a 0%, #0a1628 40%, #0d1f3c 100%);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-hover: rgba(255, 255, 255, 0.09);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --accent: #4f9eff;
+  --accent-glow: rgba(79, 158, 255, 0.35);
+  --text-primary: #e8eaf6;
+  --text-secondary: rgba(232, 234, 246, 0.65);
+  --nav-bg: rgba(10, 12, 30, 0.75);
+  --badge-bg: rgba(239, 68, 68, 0.85);
+}
+
+/* ── Reset & Base ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  padding-top: 70px;
+  /* push ALL content below the fixed navbar */
+}
+
+/* Animated background orbs */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+body::before {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(79, 158, 255, 0.12) 0%, transparent 70%);
+  top: -100px;
+  left: -100px;
+  animation: floatOrb 18s ease-in-out infinite alternate;
+}
+
+body::after {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+  bottom: -80px;
+  right: -80px;
+  animation: floatOrb 22s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes floatOrb {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  100% {
+    transform: translate(60px, 60px) scale(1.15);
+  }
+}
+
 #root {
   display: block;
-  background: white;
-  color: black;
+  background: transparent;
+  color: var(--text-primary);
 }
-.card{
-  border: 2px solid black;
-  border-radius: 1.25rem;
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
 }
-.card-img, .card-img-top {
-    border-top-left-radius: calc(1.25rem - 1px);
-    border-top-right-radius: calc(1.25rem - 1px);
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(79, 158, 255, 0.4);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 158, 255, 0.65);
+}
+
+/* ── NavBar Glass ── */
+.navbar {
+  background: var(--nav-bg) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  transition: background 0.3s;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #4f9eff, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav-link {
+  color: var(--text-secondary) !important;
+  font-weight: 500;
+  font-size: 0.9rem;
+  letter-spacing: 0.3px;
+  padding: 0.45rem 0.85rem !important;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+  position: relative;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--text-primary) !important;
+  background: rgba(79, 158, 255, 0.12);
+}
+
+.navbar-toggler {
+  border-color: var(--glass-border) !important;
+}
+
+/* ── Page Heading ── */
+.page-heading {
+  text-align: center;
+  margin: 20px 0 30px;
+  padding: 20px 20px 10px;
+}
+
+.page-heading h1 {
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(90deg, #e8eaf6 30%, #4f9eff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── News Grid — equal height rows ── */
+.news-grid {
+  padding-top: 14px;
+  /* space for the overflowing source badge on row 1 */
+  padding-bottom: 2rem;
+}
+
+/* Make all col-md-4 cards same height */
+.news-grid .col-md-4 {
+  display: flex;
+  margin-bottom: 1.5rem;
+}
+
+.news-grid .col-md-4 .glass-card {
+  width: 100%;
+}
+
+/* ── Glass Card ── */
+.glass-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  overflow: visible;
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.28s ease, box-shadow 0.28s ease, background 0.28s ease;
+  animation: fadeUp 0.5s ease both;
+}
+
+/* .glass-card:hover {
+  transform: translateY(-6px);
+  background: var(--glass-hover);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.55), 0 0 0 1px rgba(79,158,255,0.2);
+} */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Card Image ── */
+.glass-card .card-img-wrap {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 17px 17px 0 0;
+  flex-shrink: 0;
+}
+
+.glass-card .card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.glass-card:hover .card-img-wrap img {
+  transform: scale(1.05);
+}
+
+/* ── Card Body ── */
+.glass-card .card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1.1rem 1.2rem 1.2rem;
+  background: transparent;
+}
+
+.glass-card .card-title {
+  font-size: 0.97rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.45;
+  margin-bottom: 0.6rem;
+  /* clamp to 3 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.glass-card .card-text {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  flex: 1;
+  /* clamp to 4 lines */
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.glass-card .card-date {
+  font-size: 0.75rem;
+  color: rgba(232, 234, 246, 0.45);
+  margin-bottom: 0.9rem;
+}
+
+/* ── Read More Button ── */
+.btn-glass {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.42rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--accent);
+  background: rgba(79, 158, 255, 0.1);
+  border: 1px solid rgba(79, 158, 255, 0.35);
+  border-radius: 10px;
+  text-decoration: none;
+  transition: background 0.22s, box-shadow 0.22s, color 0.22s;
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.btn-glass:hover {
+  background: rgba(79, 158, 255, 0.22);
+  box-shadow: 0 0 12px var(--accent-glow);
+  color: #fff;
+}
+
+/* ── Source Badge ── */
+.source-badge {
+  position: absolute;
+  top: -10px;
+  right: 12px;
+  background: rgba(239, 68, 68, 0.88);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 2;
+}
+
+/* ── Spinner ── */
+.spinner-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 0;
+}
+
+/* ── Loading Bar ── */
+#nprogress .bar {
+  background: linear-gradient(90deg, #4f9eff, #a78bfa) !important;
+}
+
+/* ── Infinite scroll end message ── */
+.end-message {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
 }
