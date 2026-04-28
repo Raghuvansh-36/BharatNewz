@@ -9,13 +9,14 @@ const News = (props) => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
-  const [apiError, setApiError] = useState(null);
+  const [error, setError] = useState(false);
 
   const capitalizeFirstLetter = (string) =>
     string.charAt(0).toUpperCase() + string.slice(1);
 
   const updateNews = async () => {
     props.setProgress(10);
+    setError(false);
     try {
       const url = `https://gnews.io/api/v4/top-headlines?category=${props.category}&country=${props.country}&lang=en&apikey=${props.apiKey}`;
       setLoading(true);
@@ -23,29 +24,19 @@ const News = (props) => {
       props.setProgress(30);
       const parsedData = await data.json();
       props.setProgress(70);
-
-      // Detect API exhaustion: non-2xx status OR missing articles OR error fields in response
-      const isExhausted =
-        !data.ok ||
-        !parsedData.articles ||
-        parsedData.errors ||
-        parsedData.error ||
-        (parsedData.message && !parsedData.articles);
-
-      if (isExhausted) {
-        setApiError('ERROR — due to limited API calls, check after some time.');
-        setLoading(false);
-        props.setProgress(100);
-        return;
+      
+      if (parsedData && parsedData.articles) {
+        setArticles(parsedData.articles);
+        setTotalResults(parsedData.totalResults || 0);
+        setError(false);
+      } else {
+        setError(true);
       }
-
-      setArticles(parsedData.articles);
-      setTotalResults(parsedData.totalResults);
       setLoading(false);
       props.setProgress(100);
     } catch (err) {
       console.error('Error fetching news:', err);
-      // setApiError('ERROR — due to limited API calls, check after some time.');
+      setError(true);
       setLoading(false);
       props.setProgress(100);
     }
@@ -63,88 +54,18 @@ const News = (props) => {
       const url = `https://newsapi.org/v2/top-headlines?country=${props.country}&lang=en&category=${props.category}&apiKey=${props.apiKey}&page=${nextPage}&pageSize=${props.pageSize}`;
       const data = await fetch(url);
       const parsedData = await data.json();
-      setArticles((prevArticles) => prevArticles.concat(parsedData.articles));
-      setTotalResults(parsedData.totalResults);
-      setPage(nextPage);
-    } catch (error) {
-      console.error('Error fetching more data:', error);
+      
+      if (parsedData && parsedData.articles) {
+        setArticles((prevArticles) => prevArticles.concat(parsedData.articles));
+        setTotalResults(parsedData.totalResults || 0);
+        setPage(nextPage);
+      } else {
+        console.warn('Could not fetch more data');
+      }
+    } catch (err) {
+      console.error('Error fetching more data:', err);
     }
   };
-
-  // ── API exhaustion error screen ──
-  if (apiError) {
-    return (
-      <>
-        <div className="page-heading">
-          <h1>BharatNewz — Top {capitalizeFirstLetter(props.category)} Headlines</h1>
-        </div>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '55vh',
-          padding: '2rem',
-        }}>
-          <div style={{
-            background: 'rgba(239, 68, 68, 0.07)',
-            border: '1px solid rgba(239, 68, 68, 0.35)',
-            borderRadius: '20px',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            boxShadow: '0 8px 40px rgba(239, 68, 68, 0.15)',
-            padding: '3rem 3.5rem',
-            textAlign: 'center',
-            maxWidth: '560px',
-            width: '100%',
-          }}>
-            {/* Icon */}
-            <div style={{ fontSize: '3.5rem', marginBottom: '1.2rem' }}>⚠️</div>
-
-            {/* Heading */}
-            <h2 style={{
-              fontSize: '1.15rem',
-              fontWeight: 700,
-              color: '#fca5a5',
-              letterSpacing: '0.3px',
-              marginBottom: '0.75rem',
-            }}>
-              API Limit Reached
-            </h2>
-
-            {/* Message */}
-            <p style={{
-              fontSize: '0.92rem',
-              color: 'rgba(252, 165, 165, 0.8)',
-              lineHeight: 1.65,
-              marginBottom: '1.5rem',
-            }}>
-              ERROR — due to limited API calls, check after some time.
-            </p>
-
-            {/* Retry button */}
-            <button
-              onClick={() => { setApiError(null); updateNews(); }}
-              style={{
-                padding: '0.5rem 1.4rem',
-                fontSize: '0.82rem',
-                fontWeight: 600,
-                color: '#fca5a5',
-                background: 'rgba(239, 68, 68, 0.12)',
-                border: '1px solid rgba(239, 68, 68, 0.4)',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.22)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(239,68,68,0.12)'}
-            >
-              🔄 Retry
-            </button>
-          </div>
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
@@ -160,29 +81,50 @@ const News = (props) => {
         </div>
       )}
 
-      <InfiniteScroll
-        dataLength={articles.length}
-        next={fetchMoreData}
-        hasMore={articles.length < totalResults}
-        loader={<Spinner />}
-      >
-        <div className="container">
-          <div className="row news-grid">
-            {articles.map((element) => (
-              <div className="col-md-4" key={element.url}>
-                <NewsItem
-                  title={element.title || ''}
-                  description={element.description || ''}
-                  imageUrl={element.image}
-                  newsUrl={element.url}
-                  date={element.publishedAt}
-                  source={element.source.name}
-                />
-              </div>
-            ))}
+      {/* Error Message */}
+      {error && !loading && (
+        <div className="container d-flex justify-content-center">
+          <div className="glass-card p-5 text-center" style={{maxWidth: '600px', border: '1px solid rgba(239, 68, 68, 0.3)'}}>
+            <h2 style={{color: '#ef4444', marginBottom: '1rem'}}>⚠️ Access Limited</h2>
+            <p className="card-text" style={{fontSize: '1.1rem'}}>
+              ERROR - due to limited api calls check after some time
+            </p>
+            <button 
+              className="btn-glass mt-3" 
+              onClick={updateNews}
+              style={{alignSelf: 'center'}}
+            >
+              🔄 Try Again
+            </button>
           </div>
         </div>
-      </InfiniteScroll>
+      )}
+
+      {!error && (
+        <InfiniteScroll
+          dataLength={articles.length}
+          next={fetchMoreData}
+          hasMore={articles.length < totalResults}
+          loader={<Spinner />}
+        >
+          <div className="container">
+            <div className="row news-grid">
+              {articles.map((element) => (
+                <div className="col-md-4" key={element.url}>
+                  <NewsItem
+                    title={element.title || ''}
+                    description={element.description || ''}
+                    imageUrl={element.image}
+                    newsUrl={element.url}
+                    date={element.publishedAt}
+                    source={element.source.name}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </InfiniteScroll>
+      )}
     </>
   );
 };
