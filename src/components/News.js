@@ -45,7 +45,7 @@ const News = (props) => {
       props.setProgress(100);
     } catch (err) {
       console.error('Error fetching news:', err);
-      setApiError('ERROR — due to limited API calls, check after some time.');
+      // setApiError('ERROR — due to limited API calls, check after some time.');
       setLoading(false);
       props.setProgress(100);
     }
