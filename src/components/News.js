@@ -16,10 +16,19 @@ const News = (props) => {
   const updateNews = async () => {
     props.setProgress(10);
     try {
-      const url = `https://gnews.io/api/v4/top-headlines?category=${props.category}&country=${props.country}&lang=en&apikey=${props.apiKey}`;
+      const targetUrl = `https://gnews.io/api/v4/top-headlines?category=${props.category}&country=${props.country}&lang=en&apikey=${props.apiKey}`;
+      
+      // Use corsproxy.io - a simple and reliable proxy
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+      
       setLoading(true);
-      const response = await fetch(url);
+      const response = await fetch(proxyUrl);
       props.setProgress(30);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const parsedData = await response.json();
       props.setProgress(70);
       
@@ -45,8 +54,10 @@ const News = (props) => {
   const fetchMoreData = async () => {
     const nextPage = page + 1;
     try {
-      const url = `https://gnews.io/api/v4/top-headlines?category=${props.category}&country=${props.country}&lang=en&apikey=${props.apiKey}&page=${nextPage}`;
-      const response = await fetch(url);
+      const targetUrl = `https://gnews.io/api/v4/top-headlines?category=${props.category}&country=${props.country}&lang=en&apikey=${props.apiKey}&page=${nextPage}`;
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+      
+      const response = await fetch(proxyUrl);
       const parsedData = await response.json();
       
       if (parsedData && parsedData.articles) {
