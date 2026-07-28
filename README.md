@@ -1,70 +1,101 @@
-# Getting Started with Create React App
+# 📰 BharatNewz
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+BharatNewz is a premium, modern, and highly responsive news aggregator web application tailored for real-time news in India. Designed with a gorgeous glassmorphic UI, it fetches top headlines across multiple categories directly from the **GNews API** using a secure proxy to deliver a premium user experience without clutter.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🚀 Live Demo
 
-### `npm start`
+The application is configured to deploy directly to GitHub Pages. You can view the live site here:
+🔗 **[BharatNewz Live Web App](https://Raghuvansh-36.github.io/BharatNewz)**
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+---
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## ✨ Features
 
-### `npm test`
+- **🌐 Live Categorized Feeds**: Access real-time headlines across multiple categories:
+  - `General (Home)`
+  - `Business`
+  - `Entertainment`
+  - `Health`
+  - `Science`
+  - `Sports`
+  - `Technology`
+- **♾️ Seamless Infinite Scrolling**: Integrated with `react-infinite-scroll-component` to automatically load articles as the user scrolls, avoiding clunky pagination.
+- **🎨 Premium Glassmorphic UI**: Built using modern CSS design principles featuring:
+  - Translucent card backgrounds (`backdrop-filter`) with custom neon/neon-accent borders.
+  - Floating ambient background orbs with subtle hover-scale keyframe animations.
+  - Custom scrollbars styled to complement the dark theme.
+- **⚡ Interactive Loading Progress**: Real-time request progress tracking with `react-top-loading-bar` using a custom gradient transition (`#4f9eff` to `#a78bfa`).
+- **🛡️ CORS Proxy Protection**: Integrated with `corsproxy.io` to guarantee reliability and bypass common CORS blocks during API calls.
+- **⏳ Dynamic Time Formatting**: Converts publication dates to standard Indian Standard Time (IST) for easy readability.
+- **🖼️ Smart Image Fallback**: Gracefully detects missing or broken image assets and switches to a premium branded placeholder.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 🛠️ Tech Stack & Architecture
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **Frontend Framework**: [React.js (v19)](https://react.dev/)
+- **Routing**: [React Router DOM (v6)](https://reactrouter.com/)
+- **Styling**: [Bootstrap 5](https://getbootstrap.com/) (layout grid) + Vanilla CSS (Glassmorphism & animations)
+- **API Provider**: [GNews API](https://gnews.io/)
+- **Progressive Loader**: [React Top Loading Bar](https://github.com/lucasplus/react-top-loading-bar)
+- **Scroll Engine**: [React Infinite Scroll Component](https://github.com/danbove/react-infinite-scroll-component)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 💎 Pros & Advantages
 
-### `npm run eject`
+1. **Aesthetics & Micro-interactions**: The custom dark-glass UI feels premium, using rich HSL-curated color gradients instead of generic solid colors.
+2. **Optimized Layout Grid**: Cards are designed to be equal height dynamically, preventing erratic visual gaps and maintaining layout cohesion.
+3. **No Page Reloads**: Uses client-side single-page routing for fast navigation between news sections.
+4. **Optimized Content Density**: Grid layout automatically adjusts to `12`, `6`, or `4` columns on mobile, tablet, and desktop viewports respectively.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+---
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 📦 Setup & Installation
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Follow these steps to set up the project locally on your machine.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### Prerequisites
+- Make sure you have **Node.js** (v16.x or newer recommended) and **npm** installed.
 
-## Learn More
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Raghuvansh-36/BharatNewz.git
+cd BharatNewz
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 2. Install Dependencies
+Run the following command to download and install project dependencies:
+```bash
+npm install
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 3. Setup Environment Variables
+Create a file named `.env.local` in the root of the project (same directory as `package.json`) and add your GNews API key:
+```env
+REACT_APP_NEWS_API=your_gnews_api_key_here
+```
+> **Note**: You can sign up and get a free API key at [GNews API](https://gnews.io/).
 
-### Code Splitting
+### 4. Run the Development Server
+Launch the local development environment:
+```bash
+npm start
+```
+This runs the app in development mode. Open **[http://localhost:3000](http://localhost:3000)** in your browser to view it.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 5. Build for Production
+To generate an optimized build for production, run:
+```bash
+npm run build
+```
+This compiles React into static files in the `build` folder, ready to be hosted on any web server.
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### 6. Deployment (GitHub Pages)
+The project includes pre-configured scripts for deploying to GitHub Pages. Run:
+```bash
+npm run deploy
+```
+This runs the build and publishes the static files directly to your configured GitHub repository.
