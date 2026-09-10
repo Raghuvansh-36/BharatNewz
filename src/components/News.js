@@ -9,6 +9,7 @@ const News = (props) => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
+  const [error, setError] = useState(null);
 
   const capitalizeFirstLetter = (string) =>
     string.charAt(0).toUpperCase() + string.slice(1);
@@ -16,13 +17,16 @@ const News = (props) => {
   const updateNews = async () => {
     props.setProgress(10);
     try {
-      const targetUrl = `https://gnews.io/api/v4/top-headlines?category=${props.category}&country=${props.country}&lang=en&apikey=${props.apiKey}`;
+      setError(null);
       
-      // Use corsproxy.io - a simple and reliable proxy
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+      if (!props.apiKey) {
+        throw new Error('API Key is not configured. Please set REACT_APP_NEWS_API environment variable.');
+      }
+
+      const url = `https://gnews.io/api/v4/top-headlines?category=${props.category}&country=${props.country}&lang=en&apikey=${props.apiKey}`;
       
       setLoading(true);
-      const response = await fetch(proxyUrl);
+      const response = await fetch(url);
       props.setProgress(30);
       
       if (!response.ok) {
@@ -35,11 +39,14 @@ const News = (props) => {
       if (parsedData && parsedData.articles) {
         setArticles(parsedData.articles);
         setTotalResults(parsedData.totalResults || 0);
+      } else if (parsedData.error) {
+        throw new Error(parsedData.error);
       }
       setLoading(false);
       props.setProgress(100);
     } catch (err) {
       console.error('Error fetching news:', err);
+      setError(err.message);
       setLoading(false);
       props.setProgress(100);
     }
@@ -49,24 +56,35 @@ const News = (props) => {
     document.title = `BharatNewz - ${capitalizeFirstLetter(props.category)}`;
     updateNews();
     // eslint-disable-next-line
-  }, []);
+  }, [props.category]);
 
   const fetchMoreData = async () => {
     const nextPage = page + 1;
     try {
-      const targetUrl = `https://gnews.io/api/v4/top-headlines?category=${props.category}&country=${props.country}&lang=en&apikey=${props.apiKey}&page=${nextPage}`;
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+      if (!props.apiKey) {
+        throw new Error('API Key is not configured.');
+      }
+
+      const url = `https://gnews.io/api/v4/top-headlines?category=${props.category}&country=${props.country}&lang=en&apikey=${props.apiKey}&page=${nextPage}`;
       
-      const response = await fetch(proxyUrl);
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const parsedData = await response.json();
       
       if (parsedData && parsedData.articles) {
         setArticles((prevArticles) => prevArticles.concat(parsedData.articles));
         setTotalResults(parsedData.totalResults || 0);
         setPage(nextPage);
+      } else if (parsedData.error) {
+        throw new Error(parsedData.error);
       }
     } catch (err) {
       console.error('Error fetching more data:', err);
+      setError(err.message);
     }
   };
 
@@ -76,35 +94,59 @@ const News = (props) => {
         <h1>BharatNewz — Top {capitalizeFirstLetter(props.category)} Headlines</h1>
       </div>
 
+      {error && (
+        <div className="container mt-3">
+          <div className="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error:</strong> {error}
+            <button 
+              type="button" 
+              className="btn-close" 
+              onClick={() => setError(null)}
+              aria-label="Close"
+            ></button>
+          </div>
+        </div>
+      )}
+
       {loading && page === 1 && (
         <div className="spinner-wrap">
           <Spinner />
         </div>
       )}
 
-      <InfiniteScroll
-        dataLength={articles.length}
-        next={fetchMoreData}
-        hasMore={articles.length < totalResults}
-        loader={<Spinner />}
-      >
-        <div className="container">
-          <div className="row news-grid">
-            {articles.map((element, index) => (
-              <div className="col-md-4" key={`${element.url}-${index}`}>
-                <NewsItem
-                  title={element.title || ''}
-                  description={element.description || ''}
-                  imageUrl={element.image}
-                  newsUrl={element.url}
-                  date={element.publishedAt}
-                  source={element.source ? element.source.name : 'Unknown'}
-                />
-              </div>
-            ))}
+      {!error && articles.length > 0 && (
+        <InfiniteScroll
+          dataLength={articles.length}
+          next={fetchMoreData}
+          hasMore={articles.length < totalResults}
+          loader={<Spinner />}
+        >
+          <div className="container">
+            <div className="row news-grid">
+              {articles.map((element, index) => (
+                <div className="col-md-4" key={`${element.url}-${index}`}>
+                  <NewsItem
+                    title={element.title || ''}
+                    description={element.description || ''}
+                    imageUrl={element.image}
+                    newsUrl={element.url}
+                    date={element.publishedAt}
+                    source={element.source ? element.source.name : 'Unknown'}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </InfiniteScroll>
+      )}
+
+      {!loading && !error && articles.length === 0 && (
+        <div className="container mt-5">
+          <div className="alert alert-info" role="alert">
+            No news articles found for this category.
           </div>
         </div>
-      </InfiniteScroll>
+      )}
     </>
   );
 };
@@ -119,6 +161,8 @@ News.propTypes = {
   country: PropTypes.string,
   pageSize: PropTypes.number,
   category: PropTypes.string,
+  setProgress: PropTypes.func,
+  apiKey: PropTypes.string,
 };
 
 export default News;
