@@ -9,8 +9,7 @@ const News = (props) => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
-  const [error, setError] = useState('');
-  const { apiKey, category, country, pageSize, setProgress, regionLabel, searchQuery } = props;
+  const [error, setError] = useState(null);
 
   const capitalizeFirstLetter = (string) =>
     string.charAt(0).toUpperCase() + string.slice(1);
@@ -19,25 +18,29 @@ const News = (props) => {
     setProgress(10);
     setError('');
     try {
-      const endpoint = searchQuery ? 'search' : 'top-headlines';
-      const params = new URLSearchParams({ category, lang: 'en', max: pageSize, apikey: apiKey });
-      if (country) params.set('country', country);
-      if (searchQuery) params.set('q', searchQuery);
-      const targetUrl = `https://gnews.io/api/v4/${endpoint}?${params.toString()}`;
+      setError(null);      
+      if (!props.apiKey) {
+        throw new Error('API Key is not configured. Please set REACT_APP_NEWS_API environment variable.');
+      }
 
+      const url = `https://gnews.io/api/v4/top-headlines?category=${props.category}&country=${props.country}&lang=en&apikey=${props.apiKey}`;
+      
       setLoading(true);
-      const response = await fetch(targetUrl);
-      setProgress(30);
-
+      const response = await fetch(url);
+      props.setProgress(30);
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const parsedData = await response.json();
-      setProgress(70);
-
-      if (!parsedData.articles) {
-        throw new Error(parsedData.errors?.[0] || parsedData.message || 'The API returned no articles.');
+      props.setProgress(70);
+      
+      if (parsedData && parsedData.articles) {
+        setArticles(parsedData.articles);
+        setTotalResults(parsedData.totalResults || 0);
+      } else if (parsedData.error) {
+        throw new Error(parsedData.error);
       }
       setArticles(parsedData.articles);
       setTotalResults(parsedData.totalArticles || 0);
@@ -45,7 +48,7 @@ const News = (props) => {
       setProgress(100);
     } catch (err) {
       console.error('Error fetching news:', err);
-      setError(err.message || 'Unable to load news right now.');
+      setError(err.message);
       setLoading(false);
       setProgress(100);
     }
@@ -54,36 +57,36 @@ const News = (props) => {
   useEffect(() => {
     document.title = `BharatNewz - ${regionLabel || capitalizeFirstLetter(props.category)}`;
     updateNews();
-  }, [props.category, regionLabel, updateNews]);
+    // eslint-disable-next-line
+  }, [props.category]);
 
   const fetchMoreData = async () => {
     const nextPage = page + 1;
     try {
-      const endpoint = searchQuery ? 'search' : 'top-headlines';
-      const params = new URLSearchParams({
-        category: props.category,
-        lang: 'en',
-        max: props.pageSize,
-        apikey: props.apiKey,
-        page: nextPage,
-      });
-      if (props.country) params.set('country', props.country);
-      if (searchQuery) params.set('q', searchQuery);
-      const targetUrl = `https://gnews.io/api/v4/${endpoint}?${params.toString()}`;
+      if (!props.apiKey) {
+        throw new Error('API Key is not configured.');
+      }
 
-      const response = await fetch(targetUrl);
+      const url = `https://gnews.io/api/v4/top-headlines?category=${props.category}&country=${props.country}&lang=en&apikey=${props.apiKey}&page=${nextPage}`;
+      
+      const response = await fetch(url);
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+
       const parsedData = await response.json();
 
       if (parsedData && parsedData.articles) {
         setArticles((prevArticles) => prevArticles.concat(parsedData.articles));
         setTotalResults(parsedData.totalArticles || 0);
         setPage(nextPage);
+      } else if (parsedData.error) {
+        throw new Error(parsedData.error);
       }
     } catch (err) {
       console.error('Error fetching more data:', err);
+      setError(err.message);
     }
   };
 
@@ -93,37 +96,59 @@ const News = (props) => {
         <h1>{regionLabel ? `${regionLabel} News` : `BharatNewz — Top ${capitalizeFirstLetter(props.category)} Headlines`}</h1>
       </div>
 
+      {error && (
+        <div className="container mt-3">
+          <div className="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error:</strong> {error}
+            <button 
+              type="button" 
+              className="btn-close" 
+              onClick={() => setError(null)}
+              aria-label="Close"
+            ></button>
+          </div>
+        </div>
+      )}
+
       {loading && page === 1 && (
         <div className="spinner-wrap">
           <Spinner />
         </div>
       )}
 
-      {error && <p className="news-error">{error}</p>}
+      {!error && articles.length > 0 && (
+        <InfiniteScroll
+          dataLength={articles.length}
+          next={fetchMoreData}
+          hasMore={articles.length < totalResults}
+          loader={<Spinner />}
+        >
+          <div className="container">
+            <div className="row news-grid">
+              {articles.map((element, index) => (
+                <div className="col-md-4" key={`${element.url}-${index}`}>
+                  <NewsItem
+                    title={element.title || ''}
+                    description={element.description || ''}
+                    imageUrl={element.image}
+                    newsUrl={element.url}
+                    date={element.publishedAt}
+                    source={element.source ? element.source.name : 'Unknown'}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </InfiniteScroll>
+      )}
 
-      <InfiniteScroll
-        dataLength={articles.length}
-        next={fetchMoreData}
-        hasMore={articles.length < totalResults}
-        loader={<Spinner />}
-      >
-        <div className="container">
-          <div className="row news-grid">
-            {articles.map((element, index) => (
-              <div className="col-md-4" key={`${element.url}-${index}`}>
-                <NewsItem
-                  title={element.title || ''}
-                  description={element.description || ''}
-                  imageUrl={element.image}
-                  newsUrl={element.url}
-                  date={element.publishedAt}
-                  source={element.source ? element.source.name : 'Unknown'}
-                />
-              </div>
-            ))}
+      {!loading && !error && articles.length === 0 && (
+        <div className="container mt-5">
+          <div className="alert alert-info" role="alert">
+            No news articles found for this category.
           </div>
         </div>
-      </InfiniteScroll>
+      )}
     </>
   );
 };
@@ -139,8 +164,8 @@ News.propTypes = {
   country: PropTypes.string,
   pageSize: PropTypes.number,
   category: PropTypes.string,
-  regionLabel: PropTypes.string,
-  searchQuery: PropTypes.string,
+  setProgress: PropTypes.func,
+  apiKey: PropTypes.string,
 };
 
 export default News;
