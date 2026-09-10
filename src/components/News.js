@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import NewsItem from './NewsItem';
 import Spinner from './Spinner';
 import PropTypes from 'prop-types';
@@ -9,60 +9,77 @@ const News = (props) => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
+  const [error, setError] = useState('');
+  const { apiKey, category, country, pageSize, setProgress, regionLabel, searchQuery } = props;
 
   const capitalizeFirstLetter = (string) =>
     string.charAt(0).toUpperCase() + string.slice(1);
 
-  const updateNews = async () => {
-    props.setProgress(10);
+  const updateNews = useCallback(async () => {
+    setProgress(10);
+    setError('');
     try {
-      const targetUrl = `https://gnews.io/api/v4/top-headlines?category=${props.category}&country=${props.country}&lang=en&apikey=${props.apiKey}`;
-      
-      // Use corsproxy.io - a simple and reliable proxy
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-      
+      const endpoint = searchQuery ? 'search' : 'top-headlines';
+      const params = new URLSearchParams({ category, lang: 'en', max: pageSize, apikey: apiKey });
+      if (country) params.set('country', country);
+      if (searchQuery) params.set('q', searchQuery);
+      const targetUrl = `https://gnews.io/api/v4/${endpoint}?${params.toString()}`;
+
       setLoading(true);
-      const response = await fetch(proxyUrl);
-      props.setProgress(30);
-      
+      const response = await fetch(targetUrl);
+      setProgress(30);
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const parsedData = await response.json();
-      props.setProgress(70);
-      
-      if (parsedData && parsedData.articles) {
-        setArticles(parsedData.articles);
-        setTotalResults(parsedData.totalResults || 0);
+      setProgress(70);
+
+      if (!parsedData.articles) {
+        throw new Error(parsedData.errors?.[0] || parsedData.message || 'The API returned no articles.');
       }
+      setArticles(parsedData.articles);
+      setTotalResults(parsedData.totalArticles || 0);
       setLoading(false);
-      props.setProgress(100);
+      setProgress(100);
     } catch (err) {
       console.error('Error fetching news:', err);
+      setError(err.message || 'Unable to load news right now.');
       setLoading(false);
-      props.setProgress(100);
+      setProgress(100);
     }
-  };
+  }, [apiKey, category, country, pageSize, searchQuery, setProgress]);
 
   useEffect(() => {
-    document.title = `BharatNewz - ${capitalizeFirstLetter(props.category)}`;
+    document.title = `BharatNewz - ${regionLabel || capitalizeFirstLetter(props.category)}`;
     updateNews();
-    // eslint-disable-next-line
-  }, []);
+  }, [props.category, regionLabel, updateNews]);
 
   const fetchMoreData = async () => {
     const nextPage = page + 1;
     try {
-      const targetUrl = `https://gnews.io/api/v4/top-headlines?category=${props.category}&country=${props.country}&lang=en&apikey=${props.apiKey}&page=${nextPage}`;
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
-      
-      const response = await fetch(proxyUrl);
+      const endpoint = searchQuery ? 'search' : 'top-headlines';
+      const params = new URLSearchParams({
+        category: props.category,
+        lang: 'en',
+        max: props.pageSize,
+        apikey: props.apiKey,
+        page: nextPage,
+      });
+      if (props.country) params.set('country', props.country);
+      if (searchQuery) params.set('q', searchQuery);
+      const targetUrl = `https://gnews.io/api/v4/${endpoint}?${params.toString()}`;
+
+      const response = await fetch(targetUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const parsedData = await response.json();
-      
+
       if (parsedData && parsedData.articles) {
         setArticles((prevArticles) => prevArticles.concat(parsedData.articles));
-        setTotalResults(parsedData.totalResults || 0);
+        setTotalResults(parsedData.totalArticles || 0);
         setPage(nextPage);
       }
     } catch (err) {
@@ -73,7 +90,7 @@ const News = (props) => {
   return (
     <>
       <div className="page-heading">
-        <h1>BharatNewz — Top {capitalizeFirstLetter(props.category)} Headlines</h1>
+        <h1>{regionLabel ? `${regionLabel} News` : `BharatNewz — Top ${capitalizeFirstLetter(props.category)} Headlines`}</h1>
       </div>
 
       {loading && page === 1 && (
@@ -81,6 +98,8 @@ const News = (props) => {
           <Spinner />
         </div>
       )}
+
+      {error && <p className="news-error">{error}</p>}
 
       <InfiniteScroll
         dataLength={articles.length}
@@ -113,12 +132,15 @@ News.defaultProps = {
   country: 'in',
   pageSize: 6,
   category: 'general',
+  apiKey: 'a0e99a9558597d54c2fc6001cd478a11',
 };
 
 News.propTypes = {
   country: PropTypes.string,
   pageSize: PropTypes.number,
   category: PropTypes.string,
+  regionLabel: PropTypes.string,
+  searchQuery: PropTypes.string,
 };
 
 export default News;
