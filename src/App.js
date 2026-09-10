@@ -7,7 +7,7 @@ import './index.css';
 
 const App = () => {
   const pageSize = 9;
-  const apiKey = process.env.REACT_APP_NEWS_API;
+  const apiKey = af487af494e16fe970c491ca8bc7923f;
   const [progress, setProgress] = useState(0);
 
   const newsProps = (category) => ({
