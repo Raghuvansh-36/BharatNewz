@@ -58,44 +58,60 @@ The application is configured to deploy directly to GitHub Pages. You can view t
 Follow these steps to set up the project locally on your machine.
 
 ### Prerequisites
+
 - Make sure you have **Node.js** (v16.x or newer recommended) and **npm** installed.
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/Raghuvansh-36/BharatNewz.git
 cd BharatNewz
 ```
 
 ### 2. Install Dependencies
+
 Run the following command to download and install project dependencies:
+
 ```bash
 npm install
 ```
 
 ### 3. Setup Environment Variables
+
 Create a file named `.env.local` in the root of the project (same directory as `package.json`) and add your GNews API key:
+
 ```env
 REACT_APP_NEWS_API=your_gnews_api_key_here
 ```
+
 > **Note**: You can sign up and get a free API key at [GNews API](https://gnews.io/).
 
 ### 4. Run the Development Server
+
 Launch the local development environment:
+
 ```bash
 npm start
 ```
+
 This runs the app in development mode. Open **[http://localhost:3000](http://localhost:3000)** in your browser to view it.
 
 ### 5. Build for Production
+
 To generate an optimized build for production, run:
+
 ```bash
 npm run build
 ```
+
 This compiles React into static files in the `build` folder, ready to be hosted on any web server.
 
 ### 6. Deployment (GitHub Pages)
+
 The project includes pre-configured scripts for deploying to GitHub Pages. Run:
+
 ```bash
 npm run deploy
 ```
+
 This runs the build and publishes the static files directly to your configured GitHub repository.

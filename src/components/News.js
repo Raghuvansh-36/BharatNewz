@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import NewsItem from './NewsItem';
 import Spinner from './Spinner';
 import PropTypes from 'prop-types';
@@ -14,11 +14,11 @@ const News = (props) => {
   const capitalizeFirstLetter = (string) =>
     string.charAt(0).toUpperCase() + string.slice(1);
 
-  const updateNews = async () => {
-    props.setProgress(10);
+  const updateNews = useCallback(async () => {
+    setProgress(10);
+    setError('');
     try {
-      setError(null);
-      
+      setError(null);      
       if (!props.apiKey) {
         throw new Error('API Key is not configured. Please set REACT_APP_NEWS_API environment variable.');
       }
@@ -32,7 +32,7 @@ const News = (props) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const parsedData = await response.json();
       props.setProgress(70);
       
@@ -42,18 +42,20 @@ const News = (props) => {
       } else if (parsedData.error) {
         throw new Error(parsedData.error);
       }
+      setArticles(parsedData.articles);
+      setTotalResults(parsedData.totalArticles || 0);
       setLoading(false);
-      props.setProgress(100);
+      setProgress(100);
     } catch (err) {
       console.error('Error fetching news:', err);
       setError(err.message);
       setLoading(false);
-      props.setProgress(100);
+      setProgress(100);
     }
-  };
+  }, [apiKey, category, country, pageSize, searchQuery, setProgress]);
 
   useEffect(() => {
-    document.title = `BharatNewz - ${capitalizeFirstLetter(props.category)}`;
+    document.title = `BharatNewz - ${regionLabel || capitalizeFirstLetter(props.category)}`;
     updateNews();
     // eslint-disable-next-line
   }, [props.category]);
@@ -74,10 +76,10 @@ const News = (props) => {
       }
 
       const parsedData = await response.json();
-      
+
       if (parsedData && parsedData.articles) {
         setArticles((prevArticles) => prevArticles.concat(parsedData.articles));
-        setTotalResults(parsedData.totalResults || 0);
+        setTotalResults(parsedData.totalArticles || 0);
         setPage(nextPage);
       } else if (parsedData.error) {
         throw new Error(parsedData.error);
@@ -91,7 +93,7 @@ const News = (props) => {
   return (
     <>
       <div className="page-heading">
-        <h1>BharatNewz — Top {capitalizeFirstLetter(props.category)} Headlines</h1>
+        <h1>{regionLabel ? `${regionLabel} News` : `BharatNewz — Top ${capitalizeFirstLetter(props.category)} Headlines`}</h1>
       </div>
 
       {error && (
@@ -155,6 +157,7 @@ News.defaultProps = {
   country: 'in',
   pageSize: 6,
   category: 'general',
+  apiKey: 'a0e99a9558597d54c2fc6001cd478a11',
 };
 
 News.propTypes = {
