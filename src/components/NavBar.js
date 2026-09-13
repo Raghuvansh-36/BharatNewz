@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useTheme } from '../context/ThemeContext';
 
 const navLinks = [
   { label: 'Home',          path: '/'             },
@@ -16,7 +15,6 @@ const NavBar = () => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -152,12 +150,6 @@ const NavBar = () => {
               </li>
             );
           })}
-          <li className="nav-item nav-actions">
-            <Link className="nav-link auth-link" to="/login">Sign in</Link>
-            <button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
-              {theme === 'dark' ? 'Light mode' : 'Dark mode'}
-            </button>
-          </li>
         </ul>
       </div>
     </nav>
